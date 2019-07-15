@@ -42,13 +42,13 @@
                 var dataAngels = [
                                 {startAngle:0,
                                 endAngle:((fullAngle/dataPointsTotal)*awaitingApproval),
-                                color:'grey'},
-                                {startAngle:((fullAngle/dataPointsTotal)*awaitingApproval)
-                                ,endAngle:fullAngle,
-                                color:'orange'}
+                                color:'grey',label:`AA`},
+                                {startAngle:((fullAngle/dataPointsTotal)*awaitingApproval),
+                                endAngle:fullAngle,
+                                color:'orange',label:`OC`}
                 ]
                 var segments = d3.arc()
-                                .innerRadius(0)
+                                .innerRadius(10)
                                 .outerRadius(100)
                                 .cornerRadius(5)
                                 .padAngle(0.05)
@@ -61,7 +61,21 @@
                 sections.enter().append('path').attr('d',segments).attr('fill',(d)=>{
                     return d.color
                 })                                
-                
+                d3.select('g')
+                  .selectAll('text')
+                  .data(dataAngels)
+                  .enter()
+                  .append('text')
+                  .each(function(d){
+                      var centroid=segments.centroid(d);
+                      d3.select(this)
+                        .attr('x',centroid[0])
+                        .attr('y',centroid[1])
+                        .attr('dy','0.2em')
+                        .attr('dx','-0.75em')
+                        .text(d.label)
+                        .attr('fill',"white")
+                  })
             })
     </script>
 </body>
