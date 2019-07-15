@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+    
+    <script>
+        var width=400
+        var height=400
+        var svg = d3.select('body')
+                    .append('svg')
+                    .attr("width",width)
+                    .attr('height',height)
+                    .style('background','pink')
+
+        d3.csv("http://0.0.0.0:8000/cs/Awaiting.csv")
+            .then((data)=>{
+                console.log(data[0])
+                let totalNumber = data.length;
+                let awaitingApproval = 0;
+                let orderCreated = 0;
+                data.forEach(element => {
+                    console.log(element.ApprovalStatus)
+                    if(element.ApprovalStatus == "Order Created"){
+                        orderCreated = orderCreated+1
+                        
+                    }else{
+                        awaitingApproval = awaitingApproval+1
+                        
+                    }    
+                });
+                console.log({awaitng:awaitingApproval,created:orderCreated})
+                var fullAngle = 2*Math.PI
+                
+                var data = [awaitingApproval,orderCreated];
+                var dataPointsTotal=data[0]+data[1];
+                var dataAngels = [
+                                {startAngle:0,
+                                endAngle:((fullAngle/dataPointsTotal)*awaitingApproval),
+                                color:'grey'},
+                                {startAngle:((fullAngle/dataPointsTotal)*awaitingApproval)
+                                ,endAngle:fullAngle,
+                                color:'orange'}
+                ]
+                var segments = d3.arc()
+                                .innerRadius(0)
+                                .outerRadius(100)
+                                .cornerRadius(5)
+                                .padAngle(0.05)
+                                .padRadius(50)
+
+                var sections = svg.append('g')
+                                  .attr('transform',"translate(200,200)")
+                                  .selectAll('path')
+                                  .data(dataAngels)
+                sections.enter().append('path').attr('d',segments).attr('fill',(d)=>{
+                    return d.color
+                })                                
+                
+            })
+    </script>
+</body>
+</html>
