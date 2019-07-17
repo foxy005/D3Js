@@ -6,6 +6,23 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <script src="https://d3js.org/d3.v5.min.js"></script>
+    <style>
+        path:hover{
+            transform: scale(1.1)
+        }
+        div.tooltip {	
+            position: absolute;			
+            text-align: center;			
+            width: 60px;					
+            height: 28px;					
+            padding: 2px;				
+            font: 12px sans-serif;		
+            background: lightsteelblue;	
+            border: 0px;		
+            border-radius: 8px;			
+            pointer-events: none;			
+        }
+    </style>
 </head>
 <body>
     
@@ -18,14 +35,16 @@
                     .attr('height',height)
                     .style('background','pink')
 
-        d3.csv("http://0.0.0.0:8000/cs/Awaiting.csv")
+        
+
+        d3.csv("http://0.0.0.0:8000/D3Js-master/Awaiting.csv")
             .then((data)=>{
-                console.log(data[0])
+                // console.log(data[0])
                 let totalNumber = data.length;
                 let awaitingApproval = 0;
                 let orderCreated = 0;
                 data.forEach(element => {
-                    console.log(element.ApprovalStatus)
+                    // console.log(element.ApprovalStatus)
                     if(element.ApprovalStatus == "Order Created"){
                         orderCreated = orderCreated+1
                         
@@ -34,7 +53,7 @@
                         
                     }    
                 });
-                console.log({awaitng:awaitingApproval,created:orderCreated})
+                // console.log({awaitng:awaitingApproval,created:orderCreated})
                 var fullAngle = 2*Math.PI
                 
                 var data = [awaitingApproval,orderCreated];
@@ -42,11 +61,17 @@
                 var dataAngels = [
                                 {startAngle:0,
                                 endAngle:((fullAngle/dataPointsTotal)*awaitingApproval),
-                                color:'grey',label:`AA`},
+                                color:'grey',label:`AA`,count:awaitingApproval},
                                 {startAngle:((fullAngle/dataPointsTotal)*awaitingApproval),
                                 endAngle:fullAngle,
-                                color:'orange',label:`OC`}
+                                color:'orange',label:`OC`,count:orderCreated}
                 ]
+
+                var div = d3.select("body")
+                            .append("div")	
+                            .attr("class", "tooltip")				
+                            .style("opacity", 0);
+
                 var segments = d3.arc()
                                 .innerRadius(10)
                                 .outerRadius(100)
@@ -58,9 +83,33 @@
                                   .attr('transform',"translate(200,200)")
                                   .selectAll('path')
                                   .data(dataAngels)
-                sections.enter().append('path').attr('d',segments).attr('fill',(d)=>{
-                    return d.color
-                })                                
+                sections.enter()
+                        .append('path')
+                        .attr('d',segments)
+                        .attr('fill',(d)=>{
+                                return d.color
+                            })
+                        .on("mouseover", function(d) {	
+                                // console.log(d)	
+                                div.transition()		
+                                    .duration(200)		
+                                    .style("opacity", .9);		
+                                div	.html(d.count)	
+                                    .style("left", (d3.event.pageX) + "px")		
+                                    .style("top", (d3.event.pageY - 28) + "px")
+                                    .style('color','white')
+                                    .style('font-size','1.2em')
+                                    .style('padding','10px')
+                                })					
+                            .on("mouseout", function(d) {		
+                                div.transition()		
+                                    .duration(500)		
+                                    .style("opacity", 0);	
+                            });
+                    
+                                    
+
+
                 d3.select('g')
                   .selectAll('text')
                   .data(dataAngels)
@@ -76,6 +125,7 @@
                         .text(d.label)
                         .attr('fill',"white")
                   })
+                
             })
     </script>
 </body>
